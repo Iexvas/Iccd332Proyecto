@@ -1,0 +1,63 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class WeatherLogger {
+
+    private static final String API_KEY = "5aaff267349d2a7221192614fe66c853";
+    private static final String LAT = "40.4168";  // Latitud de Madrid
+    private static final String LON = "-3.7038"; // Longitud de Madrid
+    private static final String CITY_NAME = "Madrid";
+
+    public static void main(String[] args) {
+        try {
+            String urlString = String.format("https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s", LAT, LON, API_KEY);
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder content = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+
+            // Cerrar conexiones
+            in.close();
+            connection.disconnect();
+
+            // Guardar datos en un archivo CSV
+            saveDataToCSV(content.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void saveDataToCSV(String jsonData) {
+        String fileName = "/home/alex/Arquitectura/CityWeather/clima-" + CITY_NAME + "-hoy.csv";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+            // Obtener la fecha y hora actuales
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            String formattedDate = now.format(formatter);
+
+            // Escribir datos en el archivo CSV
+            writer.write(formattedDate + "," + jsonData);
+            writer.newLine();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+{
+            e.printStackTrace();
+        }
+    }
+}
